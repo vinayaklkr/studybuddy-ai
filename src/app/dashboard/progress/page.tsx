@@ -13,7 +13,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import {
-  TrendingUp,
   Clock,
   FileText,
   MessageSquare,
@@ -225,7 +224,7 @@ export default function ProgressPage() {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Target className="h-5 w-5 text-blue-500" />
-                  <CardTitle>Today's Goal</CardTitle>
+                  <CardTitle>Today&apos;s Goal</CardTitle>
                 </div>
                 <CardDescription>Daily study target: 2 hours</CardDescription>
               </CardHeader>

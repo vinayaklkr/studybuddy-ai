@@ -35,11 +35,7 @@ export default function CalendarPage() {
     priority: 'medium'
   })
 
-  useEffect(() => {
-    fetchExams()
-  }, [])
-
-  async function fetchExams() {
+  const fetchExams = async () => {
     try {
       const response = await fetch('/api/exams')
       if (response.ok) {
@@ -50,6 +46,12 @@ export default function CalendarPage() {
       console.error('Error fetching exams:', error)
     }
   }
+
+  useEffect(() => {
+    // Initial fetch on mount
+    fetchExams()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function handleAddExam(e: React.FormEvent) {
     e.preventDefault()
@@ -136,7 +138,7 @@ export default function CalendarPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="flex h-16 items-center px-6 gap-4">
           <div className="flex-1">
             <h2 className="text-2xl font-bold tracking-tight">Exam Calendar</h2>

@@ -1,23 +1,23 @@
-'use client'
+"use client";
 
-import { Document, ChatSession } from '@/types'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Upload, FileText, MessageSquare, Plus, Trash2 } from 'lucide-react'
+import { Document, ChatSession } from "@/types";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+import { Card } from "@/components/ui/card";
+
+import { Upload, FileText, MessageSquare, Plus, Trash2 } from "lucide-react";
 
 interface SidebarProps {
-  documents: Document[]
-  selectedDocument: Document | null
-  selectedSession: ChatSession | null
-  onDocumentUpload: (file: File) => void
-  onSelectDocument: (document: Document) => void
-  onSelectSession: (session: ChatSession) => void
-  onDeleteDocument: (documentId: string) => void
-  onNewChat: () => void
-  loading: boolean
+  documents: Document[];
+  selectedDocument: Document | null;
+  selectedSession: ChatSession | null;
+  onDocumentUpload: (file: File) => void;
+  onSelectDocument: (document: Document) => void;
+  onSelectSession: (session: ChatSession) => void;
+  onDeleteDocument: (documentId: string) => void;
+  onNewChat: () => void;
+  loading: boolean;
 }
 
 export default function Sidebar({
@@ -32,12 +32,12 @@ export default function Sidebar({
   loading,
 }: SidebarProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      onDocumentUpload(file)
-      e.target.value = ''
+      onDocumentUpload(file);
+      e.target.value = "";
     }
-  }
+  };
 
   return (
     <div className="w-80 border-r bg-muted/30 flex flex-col">
@@ -77,14 +77,14 @@ export default function Sidebar({
               <div key={document.id} className="space-y-2">
                 <Card
                   className={`p-3 cursor-pointer hover:bg-accent transition-colors ${
-                    selectedDocument?.id === document.id ? 'bg-accent' : ''
+                    selectedDocument?.id === document.id ? "bg-accent" : ""
                   }`}
                   onClick={() => onSelectDocument(document)}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <FileText className="h-4 w-4 flex-shrink-0" />
+                        <FileText className="h-4 w-4 shrink-0" />
                         <span className="text-sm font-medium truncate">
                           {document.title}
                         </span>
@@ -98,8 +98,8 @@ export default function Sidebar({
                       size="sm"
                       className="h-8 w-8 p-0"
                       onClick={(e) => {
-                        e.stopPropagation()
-                        onDeleteDocument(document.id)
+                        e.stopPropagation();
+                        onDeleteDocument(document.id);
                       }}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -123,19 +123,22 @@ export default function Sidebar({
                       </Button>
                     </div>
 
-                    {selectedDocument.sessions && selectedDocument.sessions.length > 0 ? (
+                    {selectedDocument.sessions &&
+                    selectedDocument.sessions.length > 0 ? (
                       selectedDocument.sessions.map((session) => (
                         <Card
                           key={session.id}
                           className={`p-2 cursor-pointer hover:bg-accent transition-colors ${
-                            selectedSession?.id === session.id ? 'bg-accent' : ''
+                            selectedSession?.id === session.id
+                              ? "bg-accent"
+                              : ""
                           }`}
                           onClick={() => onSelectSession(session)}
                         >
                           <div className="flex items-center gap-2">
-                            <MessageSquare className="h-3 w-3 flex-shrink-0" />
+                            <MessageSquare className="h-3 w-3 shrink-0" />
                             <span className="text-xs truncate">
-                              {session.title || 'New Chat'}
+                              {session.title || "New Chat"}
                             </span>
                           </div>
                         </Card>
@@ -153,5 +156,5 @@ export default function Sidebar({
         </div>
       </ScrollArea>
     </div>
-  )
+  );
 }
