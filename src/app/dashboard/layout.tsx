@@ -19,52 +19,23 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import studybuddyai from "../../../public/studybuddyai.jpg"
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const pathname = usePathname()
-  const router = useRouter()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const handleSignOut = async () => {
-    try {
-      await fetch('/api/auth/signout', { method: 'POST' })
-      router.push('/auth/signin')
-    } catch (error) {
-      console.error('Sign out error:', error)
-    }
-  }
+interface NavItem {
+  title: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  description: string
+}
 
-  const navItems = [
-    {
-      title: 'Chat Mode',
-      href: '/dashboard/chat',
-      icon: MessageSquare,
-      description: 'Chat with AI assistant'
-    },
-    {
-      title: 'Calendar',
-      href: '/dashboard/calendar',
-      icon: Calendar,
-      description: 'Schedule your exams'
-    },
-    {
-      title: 'Focus Mode',
-      href: '/dashboard/focus',
-      icon: Zap,
-      description: 'Strict study sessions'
-    },
-    {
-      title: 'Progress',
-      href: '/dashboard/progress',
-      icon: TrendingUp,
-      description: 'Track your study progress'
-    },
-  ]
+interface SidebarContentProps {
+  navItems: NavItem[]
+  pathname: string
+  setSidebarOpen: (open: boolean) => void
+  handleSignOut: () => void
+}
 
-  const SidebarContent = () => (
+function SidebarContent({ navItems, pathname, setSidebarOpen, handleSignOut }: SidebarContentProps) {
+  return (
     <>
       {/* Header */}
       <div className="p-4 border-b">
@@ -117,6 +88,52 @@ export default function DashboardLayout({
       </div>
     </>
   )
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const handleSignOut = async () => {
+    try {
+      await fetch('/api/auth/signout', { method: 'POST' })
+      router.push('/auth/signin')
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
+  }
+
+  const navItems: NavItem[] = [
+    {
+      title: 'Chat Mode',
+      href: '/dashboard/chat',
+      icon: MessageSquare,
+      description: 'Chat with AI assistant'
+    },
+    {
+      title: 'Calendar',
+      href: '/dashboard/calendar',
+      icon: Calendar,
+      description: 'Schedule your exams'
+    },
+    {
+      title: 'Focus Mode',
+      href: '/dashboard/focus',
+      icon: Zap,
+      description: 'Strict study sessions'
+    },
+    {
+      title: 'Progress',
+      href: '/dashboard/progress',
+      icon: TrendingUp,
+      description: 'Track your study progress'
+    },
+  ]
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
@@ -130,7 +147,12 @@ export default function DashboardLayout({
 
       {/* Sidebar - Desktop */}
       <div className="hidden lg:flex w-64 border-r bg-muted/30 flex-col">
-        <SidebarContent />
+        <SidebarContent
+          navItems={navItems}
+          pathname={pathname}
+          setSidebarOpen={setSidebarOpen}
+          handleSignOut={handleSignOut}
+        />
       </div>
 
       {/* Sidebar - Mobile */}

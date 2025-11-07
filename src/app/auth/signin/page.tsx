@@ -39,7 +39,7 @@ export default function SignInPage() {
         const data = await response.json()
         setError(data.error || 'Invalid email or password')
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.')
     } finally {
       setLoading(false)
@@ -124,7 +124,7 @@ export default function SignInPage() {
               </Button>
 
               <div className="text-center text-sm text-muted-foreground">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link href="/auth/signup" className="text-primary hover:underline">
                   Sign up
                 </Link>
