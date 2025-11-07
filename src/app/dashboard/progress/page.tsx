@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -64,42 +64,59 @@ export default function ProgressPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchProgress();
-    fetchStudySessions();
-  }, []);
-
-  async function fetchProgress() {
+  const fetchProgress = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await fetch("/api/progress");
       if (response.ok) {
         const data = await response.json();
         setProgressData(data.progress || []);
-        setStats(data.stats || stats);
+        setStats(prevStats => ({
+          ...prevStats,
+          ...(data.stats || {})
+        }));
       }
     } catch (error) {
       console.error("Error fetching progress:", error);
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  async function fetchStudySessions() {
+  const fetchStudySessions = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await fetch("/api/study-sessions");
       if (response.ok) {
         const data = await response.json();
-        setStudySessions(data);
+        setStudySessions(data.sessions || []);
       }
     } catch (error) {
       console.error("Error fetching study sessions:", error);
+    } finally {
+      setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const loadData = async () => {
+      await Promise.all([fetchProgress(), fetchStudySessions()]);
+    };
+    loadData();
+  }, [fetchProgress, fetchStudySessions]);
 
   const last7Days = progressData.slice(0, 7).reverse();
   const last30Days = progressData.slice(0, 30).reverse();
 
-  const StatCard = ({ icon: Icon, title, value, color, subtitle }: any) => (
+  interface StatCardProps {
+    icon: React.ComponentType<{ className?: string }>;
+    title: string;
+    value: React.ReactNode;
+    color: string;
+    subtitle?: string;
+  }
+
+  const StatCard = ({ icon: Icon, title, value, color, subtitle }: StatCardProps) => (
     <Card>
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
@@ -143,6 +160,15 @@ export default function ProgressPage() {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <p className="mt-4 text-muted-foreground">Loading your progress...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
