@@ -16,7 +16,7 @@ export default function LandingPage() {
           <div className="text-center space-y-6">
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
               Your AI-Powered
-              <span className="block bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              <span className="block bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 Study Companion
               </span>
             </h1>
