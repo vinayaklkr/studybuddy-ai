@@ -23,7 +23,7 @@ interface ChatAreaProps {
   document?: Document | null;
   session: ChatSession | null;
   onNewChat: () => void;
-  onDocumentUpload?: (file: File) => void;
+  onDocumentUpload?: (file: File) => Promise<Document | undefined>;
   onDocumentRemove?: () => void;
 }
 
