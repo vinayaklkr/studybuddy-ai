@@ -5,14 +5,11 @@ import { Document, ChatSession } from "@/types";
 import ChatArea from "@/components/ChatArea";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+ 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Upload, FileText, MessageSquare, Plus, Trash2 } from "lucide-react";
+import { MessageSquare, Plus, Trash2 } from "lucide-react";
 
 export default function ChatModePage() {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -74,7 +71,7 @@ export default function ChatModePage() {
     }
   }
 
-  async function handleDocumentUpload(file: File) {
+  async function handleDocumentUpload(file: File): Promise<Document | undefined> {
     const formData = new FormData();
     formData.append("file", file);
 
@@ -119,13 +116,17 @@ export default function ChatModePage() {
             fetchAllSessions();
           }
         }
+
+        return newDocument;
       } else {
         const error = await response.json();
         alert(error.error || "Failed to upload document");
+        return undefined;
       }
     } catch (error) {
       console.error("Error uploading document:", error);
       alert("Failed to upload document");
+      return undefined;
     }
   }
 
@@ -223,16 +224,16 @@ export default function ChatModePage() {
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleDocumentUpload(file);
-      e.target.value = "";
-    }
-  };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     handleDocumentUpload(file);
+  //     e.target.value = "";
+  //   }
+  // };
 
   // Get standalone sessions (not associated with any document)
-  const standaloneSessions = sessions.filter((s) => !s.documentId);
+  // const standaloneSessions = sessions.filter((s) => !s.documentId);
 
   return (
     <div className="flex h-full flex-col lg:flex-row overflow-hidden">
@@ -266,7 +267,7 @@ export default function ChatModePage() {
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <MessageSquare className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                          <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
                           <button
                             onClick={() => handleSelectSession(session)}
                             className="flex-1 text-left text-xs lg:text-sm truncate font-medium"

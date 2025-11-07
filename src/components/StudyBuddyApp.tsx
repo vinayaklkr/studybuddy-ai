@@ -42,7 +42,7 @@ export default function StudyBuddyApp() {
     }
   }
 
-  async function handleDocumentUpload(file: File) {
+  async function handleDocumentUpload(file: File): Promise<Document | undefined> {
     const formData = new FormData()
     formData.append('file', file)
 
@@ -57,13 +57,16 @@ export default function StudyBuddyApp() {
         setDocuments([newDocument, ...documents])
         setSelectedDocument(newDocument)
         setSelectedSession(null)
+        return newDocument
       } else {
         const error = await response.json()
         alert(error.error || 'Failed to upload document')
+        return undefined
       }
     } catch (error) {
       console.error('Error uploading document:', error)
       alert('Failed to upload document')
+      return undefined
     }
   }
 

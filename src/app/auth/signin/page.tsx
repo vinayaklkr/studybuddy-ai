@@ -58,7 +58,7 @@ export default function SignInPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <span className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <span className="text-3xl font-bold bg-linear-gradient-to-r from-primary to-primary/60 text-transparent">
               StudyBuddy AI
             </span>
           </Link>
