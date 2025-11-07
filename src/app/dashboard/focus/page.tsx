@@ -210,7 +210,7 @@ export default function FocusModePage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="flex h-16 items-center px-6 gap-4">
           <div className="flex-1">
             <h2 className="text-2xl font-bold tracking-tight">Focus Mode</h2>
@@ -283,7 +283,7 @@ export default function FocusModePage() {
                     {strictMode && (
                       <div className="p-4 bg-amber-500/10 border-2 border-amber-500/30 rounded-lg">
                         <div className="flex items-start gap-2">
-                          <Zap className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                          <Zap className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
                           <div className="flex-1">
                             <p className="text-sm font-bold text-amber-500">Strict Mode Enabled</p>
                             <p className="text-xs text-muted-foreground mt-1">
