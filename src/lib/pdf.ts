@@ -1,27 +1,45 @@
-// @ts-ignore - pdf2json doesn't have perfect TypeScript support
+
 import PDFParser from 'pdf2json'
+
+// Define types for PDF parser data structures
+interface PDFTextRun {
+  T?: string
+}
+
+interface PDFTextItem {
+  R?: PDFTextRun[]
+}
+
+interface PDFPage {
+  Texts?: PDFTextItem[]
+}
+
+interface PDFData {
+  Pages?: PDFPage[]
+}
 
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       const pdfParser = new PDFParser()
 
-      pdfParser.on('pdfParser_dataError', (errData: any) => {
-        console.error('Error parsing PDF:', errData.parserError)
+      pdfParser.on('pdfParser_dataError', (errData: { parserError: Error } | Error) => {
+        const errorMessage = errData instanceof Error ? errData.message : errData.parserError.message
+        console.error('Error parsing PDF:', errorMessage)
         reject(new Error('Failed to extract text from PDF'))
       })
 
-      pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
+      pdfParser.on('pdfParser_dataReady', (pdfData: PDFData) => {
         try {
           let text = ''
 
           // Extract text from all pages
           if (pdfData.Pages) {
-            pdfData.Pages.forEach((page: any) => {
+            pdfData.Pages.forEach((page: PDFPage) => {
               if (page.Texts) {
-                page.Texts.forEach((textItem: any) => {
+                page.Texts.forEach((textItem: PDFTextItem) => {
                   if (textItem.R) {
-                    textItem.R.forEach((r: any) => {
+                    textItem.R.forEach((r: PDFTextRun) => {
                       if (r.T) {
                         // Decode URI encoded text
                         text += decodeURIComponent(r.T) + ' '

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Get session with document and previous messages
     console.log('[Chat API] Fetching chat session from database...')
-    let session = await prisma.chatSession.findUnique({
+    const session = await prisma.chatSession.findUnique({
       where: { id: sessionId },
       include: {
         document: true,

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Document, Page } from "react-pdf";
-import { pdfjs } from "@/lib/pdfWorker";
+
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
@@ -18,16 +18,13 @@ export default function PDFViewer({ fileUrl, title }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.0);
-  const [loading, setLoading] = useState<boolean>(true);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
-    setLoading(false);
   }
 
   function onDocumentLoadError(error: Error) {
     console.error("Error loading PDF:", error);
-    setLoading(false);
   }
 
   const goToPrevPage = () => {

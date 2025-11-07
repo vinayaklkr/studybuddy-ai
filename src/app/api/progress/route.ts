@@ -38,7 +38,7 @@ export async function GET() {
       new Date(b.date).getTime() - new Date(a.date).getTime()
     )
 
-    let checkDate = new Date(today)
+    const checkDate = new Date(today)
     for (const p of sortedProgress) {
       const progressDate = new Date(p.date)
       progressDate.setHours(0, 0, 0, 0)

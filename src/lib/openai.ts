@@ -79,25 +79,27 @@ When answering questions:
     console.log('[generateAnswer] Response text length:', text.length)
 
     return text || 'Sorry, I could not generate a response.'
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[generateAnswer] ERROR occurred!')
-    console.error('[generateAnswer] Error type:', error?.constructor?.name)
-    console.error('[generateAnswer] Error message:', error?.message)
-    console.error('[generateAnswer] Error status:', error?.status)
+
+    const err = error as { constructor?: { name: string }; message?: string; status?: number }
+    console.error('[generateAnswer] Error type:', err?.constructor?.name)
+    console.error('[generateAnswer] Error message:', err?.message)
+    console.error('[generateAnswer] Error status:', err?.status)
     console.error('[generateAnswer] Full error:', JSON.stringify(error, null, 2))
 
     // Provide more specific error messages
-    if (error?.message?.includes('API key')) {
+    if (err?.message?.includes('API key')) {
       throw new Error('Invalid Groq API key. Please check your .env file and ensure GROQ_API_KEY is set correctly.')
     }
-    if (error?.message?.includes('quota') || error?.message?.includes('rate_limit')) {
+    if (err?.message?.includes('quota') || err?.message?.includes('rate_limit')) {
       throw new Error('Groq API quota exceeded or rate limit reached. Please check your usage at https://console.groq.com')
     }
-    if (error?.status === 401) {
+    if (err?.status === 401) {
       throw new Error('Unauthorized: Please check your Groq API key.')
     }
 
-    const errorMessage = error?.message || 'Unknown error'
+    const errorMessage = err?.message || 'Unknown error'
     throw new Error(`Failed to generate answer: ${errorMessage}`)
   }
 }
@@ -125,8 +127,9 @@ export async function generateTitle(firstMessage: string): Promise<string> {
     console.log('[generateTitle] Generated title:', text)
 
     return text.trim() || 'New Chat'
-  } catch (error: any) {
-    console.error('[generateTitle] ERROR:', error?.message)
+  } catch (error: unknown) {
+    const err = error as { message?: string }
+    console.error('[generateTitle] ERROR:', err?.message)
     console.error('[generateTitle] Full error:', error)
     return 'New Chat'
   }

@@ -35,22 +35,21 @@ export default function CalendarPage() {
     priority: 'medium'
   })
 
-  const fetchExams = async () => {
-    try {
-      const response = await fetch('/api/exams')
-      if (response.ok) {
-        const data = await response.json()
-        setExams(data)
-      }
-    } catch (error) {
-      console.error('Error fetching exams:', error)
-    }
-  }
-
   useEffect(() => {
     // Initial fetch on mount
+    const fetchExams = async () => {
+      try {
+        const response = await fetch('/api/exams')
+        if (response.ok) {
+          const data = await response.json()
+          setExams(data)
+        }
+      } catch (error) {
+        console.error('Error fetching exams:', error)
+      }
+    }
+
     fetchExams()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function handleAddExam(e: React.FormEvent) {

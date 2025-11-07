@@ -12,6 +12,7 @@ export interface SessionPayload {
   userId: string
   email: string
   name: string
+  [key: string]: unknown
 }
 
 export async function createSession(payload: SessionPayload) {
@@ -36,8 +37,23 @@ export async function createSession(payload: SessionPayload) {
 export async function verifySession(token: string): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, secret)
-    return payload as SessionPayload
+
+    // Validate that the payload has the required SessionPayload fields
+    if (
+      typeof payload.userId === 'string' &&
+      typeof payload.email === 'string' &&
+      typeof payload.name === 'string'
+    ) {
+      return {
+        userId: payload.userId,
+        email: payload.email,
+        name: payload.name,
+      }
+    }
+
+    return null
   } catch (error) {
+    console.error("Error verifying session:", error)
     return null
   }
 }

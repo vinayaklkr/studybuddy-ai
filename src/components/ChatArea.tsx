@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Document, ChatSession, Message } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,7 +13,6 @@ import {
   Loader2,
   User,
   Bot,
-  Upload,
   Paperclip,
   FileText,
   X,
@@ -32,7 +31,6 @@ export default function ChatArea({
   session,
   onNewChat,
   onDocumentUpload,
-  onDocumentRemove,
 }: ChatAreaProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -40,8 +38,27 @@ export default function ChatArea({
   const [fetchingMessages, setFetchingMessages] = useState(false);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [uploadingFile, setUploadingFile] = useState(false);
-  const [currentDocument, setCurrentDocument] = useState<Document | null>(document || null);
+  const [currentDocument, setCurrentDocument] = useState<Document | null>(
+    document || null
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const fetchMessages = useCallback(async () => {
+    if (!session) return;
+
+    setFetchingMessages(true);
+    try {
+      const response = await fetch(`/api/sessions/${session.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data.messages || []);
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    } finally {
+      setFetchingMessages(false);
+    }
+  }, [session]);
 
   useEffect(() => {
     if (session) {
@@ -49,7 +66,7 @@ export default function ChatArea({
     } else {
       setMessages([]);
     }
-  }, [session]);
+  }, [session, fetchMessages]);
 
   useEffect(() => {
     // Update current document when document prop changes
@@ -67,23 +84,6 @@ export default function ChatArea({
     scrollToBottom();
   }, [messages]);
 
-  async function fetchMessages() {
-    if (!session) return;
-
-    setFetchingMessages(true);
-    try {
-      const response = await fetch(`/api/sessions/${session.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data.messages || []);
-      }
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    } finally {
-      setFetchingMessages(false);
-    }
-  }
-
   const handleSendMessage = async () => {
     if (!input.trim() || !session || loading) return;
 
@@ -92,17 +92,21 @@ export default function ChatArea({
     setLoading(true);
 
     // Create a temporary document object for the message
-    const messageDocument = currentDocument ? {
-      id: currentDocument.id,
-      title: currentDocument.title,
-      fileUrl: currentDocument.fileUrl,
-      fileSize: currentDocument.fileSize
-    } : attachedFile ? {
-      id: `temp-${Date.now()}`,
-      title: attachedFile.name,
-      fileUrl: URL.createObjectURL(attachedFile),
-      fileSize: attachedFile.size
-    } : undefined;
+    const messageDocument = currentDocument
+      ? {
+          id: currentDocument.id,
+          title: currentDocument.title,
+          fileUrl: currentDocument.fileUrl,
+          fileSize: currentDocument.fileSize,
+        }
+      : attachedFile
+      ? {
+          id: `temp-${Date.now()}`,
+          title: attachedFile.name,
+          fileUrl: URL.createObjectURL(attachedFile),
+          fileSize: attachedFile.size,
+        }
+      : undefined;
 
     // Optimistically add user message with document info
     const tempUserMessage: Message = {
@@ -114,7 +118,7 @@ export default function ChatArea({
       createdAt: new Date().toISOString(),
     };
 
-    setMessages(prev => [...prev, tempUserMessage]);
+    setMessages((prev) => [...prev, tempUserMessage]);
 
     try {
       // If there's an attached file, upload it first
@@ -137,26 +141,30 @@ export default function ChatArea({
       if (response.ok) {
         const data = await response.json();
         // Replace temp message with actual messages from server
-        setMessages(prev =>
+        setMessages((prev) =>
           prev
-            .filter(msg => msg.id !== tempUserMessage.id)
+            .filter((msg) => msg.id !== tempUserMessage.id)
             .concat([
               {
                 ...data.userMessage,
-                document: messageDocument // Ensure document is included in the final message
+                document: messageDocument, // Ensure document is included in the final message
               },
-              data.assistantMessage
+              data.assistantMessage,
             ])
         );
       } else {
         // Remove temp message on error
-        setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id));
+        setMessages((prev) =>
+          prev.filter((msg) => msg.id !== tempUserMessage.id)
+        );
         const errorData = await response.json();
         console.error("Error sending message:", errorData);
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id));
+      setMessages((prev) =>
+        prev.filter((msg) => msg.id !== tempUserMessage.id)
+      );
     } finally {
       setLoading(false);
       setAttachedFile(null);
@@ -195,20 +203,20 @@ export default function ChatArea({
     // Create a temporary document object for the UI
     const tempDocument: Document = {
       id: `temp-${Date.now()}`,
-      userId: 'temp',
+      userId: "temp",
       fileName: file.name,
       title: file.name,
       fileUrl: URL.createObjectURL(file),
       fileSize: file.size,
-      content: '',
+      content: "",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      uploadDate: new Date().toISOString()
+      uploadDate: new Date().toISOString(),
     };
 
     setCurrentDocument(tempDocument);
     setUploadingFile(false);
-    
+
     // Reset the file input to allow selecting the same file again if needed
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -344,7 +352,8 @@ export default function ChatArea({
                               {message.document.title}
                             </p>
                             <p className="text-[10px] opacity-70">
-                              PDF • {(message.document.fileSize / 1024).toFixed(1)} KB
+                              PDF •{" "}
+                              {(message.document.fileSize / 1024).toFixed(1)} KB
                             </p>
                           </div>
                         </div>
