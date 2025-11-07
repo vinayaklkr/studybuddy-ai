@@ -100,8 +100,20 @@ export default function FocusModePage() {
   }, [currentSession, time, fetchSessions])
 
   useEffect(() => {
-    fetchSessions()
-  }, [fetchSessions])
+    // Initial fetch on mount
+    async function loadSessions() {
+      try {
+        const response = await fetch('/api/study-sessions')
+        if (response.ok) {
+          const data = await response.json()
+          setSessions(data)
+        }
+      } catch (error) {
+        console.error('Error fetching sessions:', error)
+      }
+    }
+    loadSessions()
+  }, [])
 
   useEffect(() => {
     if (isActive && !isPaused) {
