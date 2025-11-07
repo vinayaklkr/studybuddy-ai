@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession()
@@ -12,8 +12,10 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
+
     const studySession = await prisma.studySession.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!studySession) {
@@ -28,7 +30,7 @@ export async function PATCH(
     const { completed, duration } = body
 
     const updatedSession = await prisma.studySession.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         completed: completed !== undefined ? completed : studySession.completed,
         duration: duration !== undefined ? duration : studySession.duration,
