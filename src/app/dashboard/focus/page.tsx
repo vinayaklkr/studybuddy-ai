@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,40 +34,7 @@ export default function FocusModePage() {
   const [sessionDescription, setSessionDescription] = useState('')
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  useEffect(() => {
-    fetchSessions()
-  }, [])
-
-  useEffect(() => {
-    if (isActive && !isPaused) {
-      intervalRef.current = setInterval(() => {
-        setTime((prevTime) => {
-          const newTime = prevTime + 1
-
-          // Auto-complete when target reached
-          if (newTime >= targetDuration) {
-            // Use setTimeout to avoid state update during render
-            setTimeout(() => handleStop(), 0)
-            return targetDuration
-          }
-
-          return newTime
-        })
-      }, 1000)
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [isActive, isPaused, targetDuration])
-
-  async function fetchSessions() {
+  const fetchSessions = useCallback(async () => {
     try {
       const response = await fetch('/api/study-sessions')
       if (response.ok) {
@@ -77,51 +44,9 @@ export default function FocusModePage() {
     } catch (error) {
       console.error('Error fetching sessions:', error)
     }
-  }
+  }, [])
 
-  async function handleStart() {
-    if (!sessionTitle.trim()) {
-      alert('Please enter a session title')
-      return
-    }
-
-    try {
-      const response = await fetch('/api/study-sessions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: sessionTitle,
-          description: sessionDescription,
-          focusMode: strictMode,
-        }),
-      })
-
-      if (response.ok) {
-        const newSession = await response.json()
-        setCurrentSession(newSession)
-        setIsActive(true)
-        setIsPaused(false)
-        setTime(0)
-
-        // Show notification for strict mode
-        if (strictMode) {
-          console.log('Strict mode session started - pausing disabled')
-        }
-      } else {
-        const error = await response.json()
-        alert(error.error || 'Failed to start session')
-      }
-    } catch (error) {
-      console.error('Error starting session:', error)
-      alert('Failed to start session. Please try again.')
-    }
-  }
-
-  function handlePause() {
-    setIsPaused(!isPaused)
-  }
-
-  async function handleStop() {
+  const handleStop = useCallback(async () => {
     if (!currentSession) {
       console.error('No current session to stop')
       return
@@ -172,6 +97,81 @@ export default function FocusModePage() {
       // Restore active state if failed
       setIsActive(true)
     }
+  }, [currentSession, time, fetchSessions])
+
+  useEffect(() => {
+    fetchSessions()
+  }, [fetchSessions])
+
+  useEffect(() => {
+    if (isActive && !isPaused) {
+      intervalRef.current = setInterval(() => {
+        setTime((prevTime) => {
+          const newTime = prevTime + 1
+
+          // Auto-complete when target reached
+          if (newTime >= targetDuration) {
+            // Use setTimeout to avoid state update during render
+            setTimeout(() => handleStop(), 0)
+            return targetDuration
+          }
+
+          return newTime
+        })
+      }, 1000)
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [isActive, isPaused, targetDuration, handleStop])
+
+  async function handleStart() {
+    if (!sessionTitle.trim()) {
+      alert('Please enter a session title')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/study-sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: sessionTitle,
+          description: sessionDescription,
+          focusMode: strictMode,
+        }),
+      })
+
+      if (response.ok) {
+        const newSession = await response.json()
+        setCurrentSession(newSession)
+        setIsActive(true)
+        setIsPaused(false)
+        setTime(0)
+
+        // Show notification for strict mode
+        if (strictMode) {
+          console.log('Strict mode session started - pausing disabled')
+        }
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to start session')
+      }
+    } catch (error) {
+      console.error('Error starting session:', error)
+      alert('Failed to start session. Please try again.')
+    }
+  }
+
+  function handlePause() {
+    setIsPaused(!isPaused)
   }
 
   const formatTime = (seconds: number) => {
@@ -358,7 +358,7 @@ export default function FocusModePage() {
             {/* Today's Stats */}
             <Card>
               <CardHeader>
-                <CardTitle>Today's Progress</CardTitle>
+                <CardTitle>Today&apos;s Progress</CardTitle>
                 <CardDescription>Your study sessions today</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
